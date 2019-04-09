@@ -1,0 +1,304 @@
+% Homework 1 (HW1.txt) - CSC529 - Spring 2019 
+% Due: in class and on Canvas 1/31/2019, 2:00 pm.   
+% Total points: 5 (one point per problem)
+% Lateness penalty: -1 per day (2:00 pm to 2:00 pm).
+
+% This is a 1 or 2 person assignment. Type your name(s) below:
+% 1. Micah Roberts
+% 2.
+% If 2 persons work on this, they only need to turn in
+% one paper copy, but both of you should submit a 
+% duplicate copy on Canvas under your own name.
+% You may not collaborate with anyone except your partner.
+% By submitting this assignment, you implicitly agree to 
+% abide by the UNCG Academic Integrity Policy.
+
+% Each problem requires you to implement a few lines of Prolog.
+% Edit this file to add your solution to each problem.
+% Make your solution readable using indentation and white
+% space. Do not use a line length that will wrap when printed.
+
+% To run this file, rename it with a .pl extension if your are
+% using SWI Prolog, or the proper extension for whatever Prolog
+% you are using. (You may use any standard Prolog interpreter.)
+% NOTE: the PROLOG that you use may answer true/false or yes/no.
+% Either is ok. 
+
+% What to turn in:
+% 1. This .txt file with your solutions added to it. Submit as
+%    .txt on Canvas and on paper in class. (The Canvas file may
+%    be used to verify that your program works. Also, the date
+%    submitted on Canvas will be used to determine lateness.)
+% 2. Screen shots showing the output of your program ON THE
+%    TEST CASES/DATA given with each problem. Submit screen shots
+%    all in one .doc, .docx or .pdf file on Canvas, and turn in paper 
+%    copy in class.  Do NOT turn in a separate file (such as 
+%    .png) for each screen shot!! Do NOT use your phone or camera
+%    to make screen shots!! Screen shots must be readable.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Directives (Must be at the top of your SWI Prolog program.
+% Syntax may differ in other Prolog interpreters.) This is
+% needed so the program can assert the person predicate in 
+% problem 4.
+:- dynamic person(2) .
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Problem 1: implement height(List, H) using recursion. Do NOT use assert!  
+% Input: List - list of blocks/cubes in a tower.  
+% Assume: length of side of each block/cube is stored as fact: 
+%	side(Cube, Length).
+% Output: H - total height of stack of blocks. See examples. 
+
+% test data for blocks a, b, c:
+side(a, 1).
+side(b, 2).
+side(c, 3).
+% test cases to demonstrate your program:
+% ?- height([a, b, c], H).
+% H = 6.    (Prolog automatically gives value of variable.)
+
+% ?- height([ ]), H).
+% H = 0.
+
+% ?- height([a, a, a, a, b], H).
+% H = 6.
+
+% Type your solution here:
+side(a, 1).
+side(b, 2).
+side(c, 3).
+
+height([],0).
+height([FirstNumber | RestOfList], Total) :- height(RestOfList, TotalOfRest), side(FirstNumber,Y), Total is TotalOfRest + Y.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Problem 2: Given the implementation below of a parser (version 1),
+% that implements the following CFG rules:
+% S -> NP, VP.
+% NP -> Pronoun.
+% Pronoun -> it.  
+% VP -> Verb, NP.
+% Verb -> sees | likes.  (Vertical bar means alternatives)
+
+% Prolog parser v.1 for above rules:
+sentence(S) :- nounphrase(NP), verbphrase(VP), append(NP, VP, S).
+nounphrase(NP) :- pronoun(NP).
+verbphrase(VP) :- verb(V), nounphrase(NP), append(V, NP, VP).
+pronoun([it]). 
+verb([sees]). 
+verb([likes]).
+% WARNING: In Prolog only use lower case for predicates 
+% (terms like sentence). Make sure your Prolog variables
+% (like S and NP) begin with a capital letter. 
+
+% Implement v. 2 of the parser adding Prolog
+% to handle the additional CFG rules below.  
+% Do NOT use assert in your implementation!
+% NP -> Det, Noun.
+% NP -> Det, Adj, Noun.
+% Det -> the.
+% Adj -> shaggy | tiny.
+% Noun -> cat | dog.
+
+% test cases (implemented in v. 1):
+% ?- sentence([it,sees,it]).
+% true.
+% ?- sentence([it, sees]).
+% false.
+% ?- sentence([ ]).
+% false.
+
+% test cases (showing your v. 2 parser works):
+% ?- sentence([the,cat,sees,it]).
+% true.
+% ?- sentence([the, cat,likes,the,shaggy,dog]).
+% true.
+% ?- sentence([the, tiny, dog, sees, the, tiny, cat]).
+% true.
+% ?- sentence([the, cat, likes, the, tiny]).
+% false.
+
+% Type your solution here:
+% (You do not need to recopy v.1 here.)
+nounphrase(NP) :- determiner(D), noun(NOUN), append(D,NOUN,NP).
+nounphrase(NP) :- determiner(D), adjective(ADJ), noun(NOUN), append([D,ADJ,NOUN],NP).
+determiner([the]).
+adjective([shaggy]).
+adjective([tiny]).
+noun([cat]).
+noun([dog]).
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Problem 3: Simple inheritance network
+% Implement isa and aka predicates in Prolog. 
+% isa(Name, Class): returns true if entity Name is a member of Class.
+% aka(SubC, Class): returns true if SubC is a Subclass of Class.
+% Given two types of facts:
+% prop(Name, type, Class): Name isa member of Class without using 
+%                          inheritance.
+% prop(SubC, subclass, Class): Subc is a subclass of Class without
+%	           	       using inheritance
+% Test data:
+prop(tweety, type, canary).
+prop(snoopy, type, beagle).
+prop(canary, subclass, bird).
+prop(beagle, subclass, dog).
+prop(bird, subclass, animal).
+prop(dog, subclass, animal).
+
+% Implement isa and aka using recursion. DO NOT use assert!
+% You can implement this problem in 4 rules!
+% Hints: implement aka using aka and prop, 
+%        implement isa using prop and aka.  
+
+% test cases:
+% ?- isa(tweety, canary).   (Note: No inheritance used)
+% true.
+% ?- isa(tweety, bird).     (Note: Inheritance used)
+% true.
+% ?- isa(tweety, animal).
+% true.
+% ?- isa(tweety, dog).
+% false.
+% ?- aka(canary, bird).     (Note: no inheritance used)
+% true.
+% ?- aka(canary, animal).   (Note: inheritance used)
+% true.
+% ?- aka(snoopy, animal).
+% false.  (Because snoopy is a member of animal, not a subclass!) 
+
+% Type your solution here:
+prop(tweety, type, canary).
+prop(snoopy, type, beagle).
+prop(canary, subclass, bird).
+prop(beagle, subclass, dog).
+prop(bird, subclass, animal).
+prop(dog, subclass, animal).
+
+aka(SubC,Class) :- prop(SubC,subclass,Class).
+aka(SubC,Class) :- prop(SubC,subclass,T), aka(T, Class).
+
+isa(Name, Class) :- prop(Name,type,Class).
+isa(Name,Class) :- prop(Name, type,Sub), aka(Sub,Class).
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Problem 4: Implement update, using Prolog's read, write, assert.
+% Update asks user for name and age,then
+% asserts the answers in a structure: person(name(_), age(_)),
+% then asks if the user wants to continue.
+% (User must answer each question with a word
+% or number ending in a period. No blanks 
+% allowed in answer. To simplify implementation
+% of #4 and #5, user input must be all lowercase.)
+
+% Test cases part I:
+% ?- update.
+% Name?: nancy.
+% Age?: 22.
+% Continue (y or n)?: y.
+% Name?: steve.
+% Age?: 100.
+% Continue (y or n)?: x.
+% Continue (y or n)?: n.
+% true.
+
+% Test cases part II:
+% Ask Prolog to list all person structures
+% to verify that update worked:
+% ?- person(name(N), age(A)).
+% N = nancy, 
+% A = 22;
+% N=  steve, 
+% A = 100;
+% true.
+
+% Type your Solution here:
+:- dynamic person/2.
+update :- write('Name? '),read(Name),write('Age? '),read(Age),assert(person(name(Name),age(Age))), write('Continue (y or n)? '),read(Y), continue(Y).
+continue(n) :- !.
+continue(y) :- update.
+continue(a) :- write('Continue (y or n)? '),read(Y), continue(Y).
+continue(b) :- write('Continue (y or n)? '),read(Y), continue(Y).
+continue(c) :- write('Continue (y or n)? '),read(Y), continue(Y).
+continue(d) :- write('Continue (y or n)? '),read(Y), continue(Y).
+continue(e) :- write('Continue (y or n)? '),read(Y), continue(Y).
+continue(f) :- write('Continue (y or n)? '),read(Y), continue(Y).
+continue(g) :- write('Continue (y or n)? '),read(Y), continue(Y).
+continue(h) :- write('Continue (y or n)? '),read(Y), continue(Y).
+continue(i) :- write('Continue (y or n)? '),read(Y), continue(Y).
+continue(j) :- write('Continue (y or n)? '),read(Y), continue(Y).
+continue(k) :- write('Continue (y or n)? '),read(Y), continue(Y).
+continue(l) :- write('Continue (y or n)? '),read(Y), continue(Y).
+continue(m) :- write('Continue (y or n)? '),read(Y), continue(Y).
+continue(o) :- write('Continue (y or n)? '),read(Y), continue(Y).
+continue(p) :- write('Continue (y or n)? '),read(Y), continue(Y).
+continue(q) :- write('Continue (y or n)? '),read(Y), continue(Y).
+continue(r) :- write('Continue (y or n)? '),read(Y), continue(Y).
+continue(s) :- write('Continue (y or n)? '),read(Y), continue(Y).
+continue(t) :- write('Continue (y or n)? '),read(Y), continue(Y).
+continue(u) :- write('Continue (y or n)? '),read(Y), continue(Y).
+continue(v) :- write('Continue (y or n)? '),read(Y), continue(Y).
+continue(w) :- write('Continue (y or n)? '),read(Y), continue(Y).
+continue(x) :- write('Continue (y or n)? '),read(Y), continue(Y).
+continue(z) :- write('Continue (y or n)? '),read(Y), continue(Y).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Problem 5: Implement lookup using Prolog read, write.
+% Do NOT use Prolog assert.
+% Lookup asks user to enter name, then looks it up in the 
+% person(name(_), age(_)) structures stored in memory by update 
+% (in problem 4). Assumes only one person has that name.
+
+% Test cases 
+% (run after running problem 4 without quitting Prolog):
+% ?- lookup.
+% Name?: nancy.
+% Age of nancy is 22.
+% Continue (y or n)?: y.
+% Name?: steve.
+% Age of steve is 100.
+% Continue (y or n)?: y.
+% Name?: sheldon.
+% Sheldon not found.
+% Continue (y or n)?: z.
+% Continue (y or n)?: n.
+% true.
+
+% Type your Solution here:
+lookup:- write('Name '), read(N), getage(N).
+getage(N):- person(name(N), age(A)), write('Age of '), write(N), write(' is '), write(A), write('.'),nl, write('Continue (y or n)?' ), read(X), continue2(X).
+getage(N):- not(person(name(N),age(A))), write(N), write(' not found.'), nl, write('Continue (y or n)?'), read(X), continue2(X).
+
+continue2(y) :- lookup.
+continue2(n) :- !.
+continue2(a) :- write('Continue (y or n)? '),read(X), continue(X).
+continue2(b) :- write('Continue (y or n)? '),read(X), continue(X).
+continue2(c) :- write('Continue (y or n)? '),read(X), continue(X).
+continue2(d) :- write('Continue (y or n)? '),read(X), continue(X).
+continue2(e) :- write('Continue (y or n)? '),read(X), continue(X).
+continue2(f) :- write('Continue (y or n)? '),read(X), continue(X).
+continue2(g) :- write('Continue (y or n)? '),read(X), continue(X).
+continue2(h) :- write('Continue (y or n)? '),read(X), continue(X).
+continue2(i) :- write('Continue (y or n)? '),read(X), continue(X).
+continue2(j) :- write('Continue (y or n)? '),read(X), continue(X).
+continue2(k) :- write('Continue (y or n)? '),read(X), continue(X).
+continue2(l) :- write('Continue (y or n)? '),read(X), continue(X).
+continue2(m) :- write('Continue (y or n)? '),read(X), continue(X).
+continue2(o) :- write('Continue (y or n)? '),read(X), continue(X).
+continue2(p) :- write('Continue (y or n)? '),read(X), continue(X).
+continue2(q) :- write('Continue (y or n)? '),read(X), continue(X).
+continue2(r) :- write('Continue (y or n)? '),read(X), continue(X).
+continue2(s) :- write('Continue (y or n)? '),read(X), continue(X).
+continue2(t) :- write('Continue (y or n)? '),read(X), continue(X).
+continue2(u) :- write('Continue (y or n)? '),read(X), continue(X).
+continue2(v) :- write('Continue (y or n)? '),read(X), continue(X).
+continue2(w) :- write('Continue (y or n)? '),read(X), continue(X).
+continue2(x) :- write('Continue (y or n)? '),read(X), continue(X).
+continue2(z) :- write('Continue (y or n)? '),read(X), continue(X).
+
